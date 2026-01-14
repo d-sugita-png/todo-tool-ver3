@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo管理ツール</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d0d2b 100%);
+      min-height: 100vh;
+      color: #e0e0ff;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      color: #00d4ff;
+      text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+      letter-spacing: 3px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4ff, #0099cc);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #7b2fff, #5a1fcc);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(123, 47, 255, 0.4);
+    }
+
+    .btn-secondary:hover {
+      box-shadow: 0 0 30px rgba(123, 47, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .btn-export {
+      background: linear-gradient(135deg, #ff00d4, #cc00aa);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(255, 0, 212, 0.4);
+    }
+
+    .btn-export:hover {
+      box-shadow: 0 0 30px rgba(255, 0, 212, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .input-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #00d4ff;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .input-group input,
+    .input-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #e0e0ff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus,
+    .input-group textarea:focus {
+      outline: none;
+      border-color: #00d4ff;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    }
+
+    .input-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .task-sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .task-sections {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .task-column {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .task-column h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid;
+      font-size: 1.1em;
+    }
+
+    .active-column h2 {
+      color: #00d4ff;
+      border-color: #00d4ff;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    .pending-column h2 {
+      color: #ffaa00;
+      border-color: #ffaa00;
+      text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+    }
+
+    .completed-column h2 {
+      color: #00ff88;
+      border-color: #00ff88;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+    .task-list {
+      min-height: 200px;
+    }
+
+    .task-item {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 30, 60, 0.6));
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .task-item:active {
+      cursor: grabbing;
+    }
+
+    .task-item.dragging {
+      opacity: 0.5;
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    }
+
+    .task-item.drag-over {
+      border-top: 3px solid #00d4ff;
+      margin-top: 12px;
+    }
+
+    .task-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #00d4ff, #7b2fff);
+    }
+
+    .task-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .task-item.pending {
+      border-color: rgba(255, 170, 0, 0.3);
+    }
+
+    .task-item.pending::before {
+      background: linear-gradient(180deg, #ffaa00, #ff8800);
+    }
+
+    .task-item.completed {
+      opacity: 0.7;
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .task-item.completed::before {
+      background: linear-gradient(180deg, #00ff88, #00cc6a);
+    }
+
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .drag-handle {
+      color: #666;
+      font-size: 14px;
+      cursor: grab;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .task-title {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #00d4ff;
+      word-break: break-word;
+      flex: 1;
+    }
+
+    .task-item.pending .task-title {
+      color: #ffaa00;
+    }
+
+    .task-item.completed .task-title {
+      color: #00ff88;
+    }
+
+    .task-content {
+      color: #b0b0d0;
+      font-size: 0.95em;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .task-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.3s ease;
+    }
+
+    .task-btn-to-active {
+      background: linear-gradient(135deg, #00d4ff, #0099cc);
+      color: #000;
+    }
+
+    .task-btn-to-pending {
+      background: linear-gradient(135deg, #ffaa00, #ff8800);
+      color: #000;
+    }
+
+    .task-btn-to-completed {
+      background: linear-gradient(135deg, #00ff88, #00cc6a);
+      color: #000;
+    }
+
+    .task-btn-edit {
+      background: linear-gradient(135deg, #7b2fff, #5a1fcc);
+      color: #fff;
+    }
+
+    .task-btn-delete {
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      color: #fff;
+    }
+
+    .task-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a3e, #0d0d2b);
+      border: 1px solid rgba(0, 212, 255, 0.5);
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 50px rgba(0, 212, 255, 0.3);
+    }
+
+    .modal-content h3 {
+      color: #00d4ff;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+      font-style: italic;
+    }
+
+    .glow-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00d4ff, #7b2fff, #ff00d4, transparent);
+      margin: 20px 0;
+      animation: glow-pulse 2s infinite;
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .task-count {
+      text-align: center;
+      font-size: 0.85em;
+      color: #888;
+      margin-top: -15px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>◆ ToDo管理ツール ◆</h1>
+    
+    <div class="glow-line"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+        📥 データを復元
+      </button>
+      <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importTasks(event)">
+      <button class="btn btn-export" onclick="exportTasks()">📤 データをバックアップ</button>
+    </div>
+
+    <div class="input-section">
+      <div class="input-group">
+        <label>タイトル</label>
+        <input type="text" id="taskTitle" placeholder="タスクのタイトルを入力...">
+      </div>
+      <div class="input-group">
+        <label>内容</label>
+        <textarea id="taskContent" placeholder="タスクの詳細内容を入力..."></textarea>
+      </div>
+      <div style="text-align: center; margin-top: 15px;">
+        <button class="btn btn-primary" onclick="addTask()">✨ タスクを追加</button>
+      </div>
+    </div>
+
+    <div class="task-sections">
+      <div class="task-column active-column">
+        <h2>📋 未完了タスク</h2>
+        <div class="task-count" id="activeCount"></div>
+        <div class="task-list" id="activeTaskList" data-status="active"></div>
+      </div>
+      <div class="task-column pending-column">
+        <h2>⏳ 相手が確認中</h2>
+        <div class="task-count" id="pendingCount"></div>
+        <div class="task-list" id="pendingTaskList" data-status="pending"></div>
+      </div>
+      <div class="task-column completed-column">
+        <h2>✅ 済</h2>
+        <div class="task-count" id="completedCount"></div>
+        <div class="task-list" id="completedTaskList" data-status="completed"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h3>📝 タスクを編集</h3>
+      <input type="hidden" id="editTaskId">
+      <div class="input-group">
+        <label>タイトル</label>
+        <input type="text" id="editTaskTitle">
+      </div>
+      <div class="input-group">
+        <label>内容</label>
+        <textarea id="editTaskContent"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+        <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tasks = [];
+    let taskIdCounter = 1;
+    let draggedItem = null;
+    let draggedTaskId = null;
+
+    const STATUS = {
+      ACTIVE: 'active',
+      PENDING: 'pending',
+      COMPLETED: 'completed'
+    };
+
+    window.onload = function() {
+      const savedTasks = localStorage.getItem('nexusTasks');
+      const savedCounter = localStorage.getItem('nexusTaskCounter');
+      if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+        tasks = tasks.map(task => {
+          if (!task.status) {
+            task.status = task.completed ? STATUS.COMPLETED : STATUS.ACTIVE;
+          }
+          if (task.order === undefined) {
+            task.order = task.id;
+          }
+          return task;
+        });
+      }
+      if (savedCounter) {
+        taskIdCounter = parseInt(savedCounter);
+      }
+      renderTasks();
+    };
+
+    function saveTasks() {
+      localStorage.setItem('nexusTasks', JSON.stringify(tasks));
+      localStorage.setItem('nexusTaskCounter', taskIdCounter.toString());
+    }
+
+    function addTask() {
+      const title = document.getElementById('taskTitle').value.trim();
+      const content = document.getElementById('taskContent').value.trim();
+
+      if (!title) {
+        alert('タイトルを入力してください');
+        return;
+      }
+
+      const task = {
+        id: taskIdCounter++,
+        title: title,
+        content: content,
+        status: STATUS.ACTIVE,
+        order: Date.now(),
+        createdAt: new Date().toISOString()
+      };
+
+      tasks.push(task);
+      saveTasks();
+      renderTasks();
+
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('taskContent').value = '';
+    }
+
+    function changeStatus(id, newStatus) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.status = newStatus;
+        task.order = Date.now();
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function deleteTask(id) {
+      if (confirm('このタスクを削除しますか？')) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function openEditModal(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        document.getElementById('editTaskId').value = id;
+        document.getElementById('editTaskTitle').value = task.title;
+        document.getElementById('editTaskContent').value = task.content;
+        document.getElementById('editModal').classList.add('active');
+      }
+    }
+
+    function saveEdit() {
+      const id = parseInt(document.getElementById('editTaskId').value);
+      const title = document.getElementById('editTaskTitle').value.trim();
+      const content = document.getElementById('editTaskContent').value.trim();
+
+      if (!title) {
+        alert('タイトルを入力してください');
+        return;
+      }
+
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.title = title;
+        task.content = content;
+        saveTasks();
+        renderTasks();
+        closeModal();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('active');
+    }
+
+    function exportTasks() {
+      const dataStr = JSON.stringify(tasks, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'todo_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importTasks(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          let importedTasks = JSON.parse(e.target.result);
+          if (Array.isArray(importedTasks)) {
+            importedTasks = importedTasks.map(task => {
+              if (!task.status) {
+                task.status = task.completed ? STATUS.COMPLETED : STATUS.ACTIVE;
+              }
+              if (task.order === undefined) {
+                task.order = task.id;
+              }
+              return task;
+            });
+            
+            if (confirm('現在のタスクに追加しますか？\n「OK」= 追加 / 「キャンセル」= 置き換え')) {
+              tasks = tasks.concat(importedTasks);
+            } else {
+              tasks = importedTasks;
+            }
+            const maxId = Math.max(...tasks.map(t => t.id || 0), 0);
+            taskIdCounter = maxId + 1;
+            saveTasks();
+            renderTasks();
+            alert('データの復元が完了しました！');
+          } else {
+            alert('無効なファイル形式です');
+          }
+        } catch (error) {
+          alert('ファイルの読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function handleDragStart(e, taskId) {
+      draggedTaskId = taskId;
+      draggedItem = e.target.closest('.task-item');
+      draggedItem.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', taskId);
+    }
+
+    function handleDragEnd(e) {
+      if (draggedItem) {
+        draggedItem.classList.remove('dragging');
+      }
+      document.querySelectorAll('.task-item').forEach(item => {
+        item.classList.remove('drag-over');
+      });
+      draggedItem = null;
+      draggedTaskId = null;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      const taskItem = e.target.closest('.task-item');
+      if (taskItem && taskItem !== draggedItem) {
+        document.querySelectorAll('.task-item').forEach(item => {
+          item.classList.remove('drag-over');
+        });
+        taskItem.classList.add('drag-over');
+      }
+    }
+
+    function handleDrop(e, targetTaskId, status) {
+      e.preventDefault();
+      
+      if (draggedTaskId === null || draggedTaskId === targetTaskId) {
+        return;
+      }
+
+      const draggedTask = tasks.find(t => t.id === draggedTaskId);
+      const targetTask = tasks.find(t => t.id === targetTaskId);
+
+      if (!draggedTask || !targetTask) return;
+      if (draggedTask.status !== targetTask.status) return;
+
+      const statusTasks = tasks
+        .filter(t => t.status === status)
+        .sort((a, b) => a.order - b.order);
+
+      const draggedIndex = statusTasks.findIndex(t => t.id === draggedTaskId);
+      const targetIndex = statusTasks.findIndex(t => t.id === targetTaskId);
+
+      statusTasks.splice(draggedIndex, 1);
+      statusTasks.splice(targetIndex, 0, draggedTask);
+
+      statusTasks.forEach((task, index) => {
+        task.order = index;
+      });
+
+      saveTasks();
+      renderTasks();
+    }
+
+    function setupDragEvents() {
+      document.querySelectorAll('.task-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          const taskId = parseInt(item.dataset.taskId);
+          handleDragStart(e, taskId);
+        });
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', (e) => {
+          const taskId = parseInt(item.dataset.taskId);
+          const status = item.dataset.status;
+          handleDrop(e, taskId, status);
+        });
+      });
+    }
+
+    function renderTasks() {
+      const activeList = document.getElementById('activeTaskList');
+      const pendingList = document.getElementById('pendingTaskList');
+      const completedList = document.getElementById('completedTaskList');
+
+      const activeTasks = tasks.filter(t => t.status === STATUS.ACTIVE).sort((a, b) => a.order - b.order);
+      const pendingTasks = tasks.filter(t => t.status === STATUS.PENDING).sort((a, b) => a.order - b.order);
+      const completedTasks = tasks.filter(t => t.status === STATUS.COMPLETED).sort((a, b) => a.order - b.order);
+
+      document.getElementById('activeCount').textContent = `${activeTasks.length} 件`;
+      document.getElementById('pendingCount').textContent = `${pendingTasks.length} 件`;
+      document.getElementById('completedCount').textContent = `${completedTasks.length} 件`;
+
+      activeList.innerHTML = activeTasks.length === 0 
+        ? '<div class="empty-message">タスクがありません</div>'
+        : activeTasks.map(task => createTaskHTML(task)).join('');
+
+      pendingList.innerHTML = pendingTasks.length === 0 
+        ? '<div class="empty-message">確認中のタスクはありません</div>'
+        : pendingTasks.map(task => createTaskHTML(task)).join('');
+
+      completedList.innerHTML = completedTasks.length === 0 
+        ? '<div class="empty-message">完了したタスクはありません</div>'
+        : completedTasks.map(task => createTaskHTML(task)).join('');
+
+      setupDragEvents();
+    }
+
+    function createTaskHTML(task) {
+      const escapedTitle = escapeHtml(task.title);
+      const escapedContent = escapeHtml(task.content);
+      
+      let statusClass = '';
+      let moveButtons = '';
+      
+      if (task.status === STATUS.ACTIVE) {
+        statusClass = '';
+        moveButtons = `
+          <button class="task-btn task-btn-to-pending" onclick="changeStatus(${task.id}, '${STATUS.PENDING}')">⏳ 確認中へ</button>
+          <button class="task-btn task-btn-to-completed" onclick="changeStatus(${task.id}, '${STATUS.COMPLETED}')">✅ 済へ</button>
+        `;
+      } else if (task.status === STATUS.PENDING) {
+        statusClass = 'pending';
+        moveButtons = `
+          <button class="task-btn task-btn-to-active" onclick="changeStatus(${task.id}, '${STATUS.ACTIVE}')">📋 未完了へ</button>
+          <button class="task-btn task-btn-to-completed" onclick="changeStatus(${task.id}, '${STATUS.COMPLETED}')">✅ 済へ</button>
+        `;
+      } else {
+        statusClass = 'completed';
+        moveButtons = `
+          <button class="task-btn task-btn-to-active" onclick="changeStatus(${task.id}, '${STATUS.ACTIVE}')">📋 未完了へ</button>
+          <button class="task-btn task-btn-to-pending" onclick="changeStatus(${task.id}, '${STATUS.PENDING}')">⏳ 確認中へ</button>
+        `;
+      }
+      
+      return `
+        <div class="task-item ${statusClass}" draggable="true" data-task-id="${task.id}" data-status="${task.status}">
+          <div class="task-header">
+            <span class="drag-handle">⋮⋮</span>
+            <div class="task-title">${escapedTitle}</div>
+          </div>
+          ${escapedContent ? `<div class="task-content">${escapedContent}</div>` : ''}
+          <div class="task-actions">
+            ${moveButtons}
+            <button class="task-btn task-btn-edit" onclick="openEditModal(${task.id})">✏️ 編集</button>
+            <button class="task-btn task-btn-delete" onclick="deleteTask(${task.id})">🗑️ 削除</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
