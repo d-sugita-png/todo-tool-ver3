@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ToDo管理ツール</title>
+  <title>ToDo管理ツール（カレンダー搭載）</title>
   <style>
     * {
       margin: 0;
@@ -12,11 +12,11 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d0d2b 100%);
+      font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: #f5f7fa;
       min-height: 100vh;
-      color: #e0e0ff;
-      padding: 20px;
+      color: #1e293b;
+      padding: 24px;
     }
 
     .container {
@@ -26,11 +26,11 @@
 
     h1 {
       text-align: center;
-      font-size: 2.5em;
-      margin-bottom: 30px;
-      color: #00d4ff;
-      text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
-      letter-spacing: 3px;
+      font-size: 1.9em;
+      margin-bottom: 12px;
+      color: #1e293b;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
 
     .controls {
@@ -42,58 +42,49 @@
     }
 
     .btn {
-      padding: 12px 24px;
+      padding: 11px 22px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 14px;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #00d4ff, #0099cc);
-      color: #000;
-      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+      background: #4f46e5;
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
     }
 
     .btn-primary:hover {
-      box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
-      transform: translateY(-2px);
+      background: #4338ca;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
     }
 
-    .btn-secondary {
-      background: linear-gradient(135deg, #7b2fff, #5a1fcc);
-      color: #fff;
-      box-shadow: 0 0 20px rgba(123, 47, 255, 0.4);
-    }
-
-    .btn-secondary:hover {
-      box-shadow: 0 0 30px rgba(123, 47, 255, 0.8);
-      transform: translateY(-2px);
-    }
-
+    .btn-secondary,
     .btn-export {
-      background: linear-gradient(135deg, #ff00d4, #cc00aa);
-      color: #fff;
-      box-shadow: 0 0 20px rgba(255, 0, 212, 0.4);
+      background: #fff;
+      color: #475569;
+      border: 1px solid #d6dae3;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
     }
 
+    .btn-secondary:hover,
     .btn-export:hover {
-      box-shadow: 0 0 30px rgba(255, 0, 212, 0.8);
-      transform: translateY(-2px);
+      background: #f1f5f9;
+      transform: translateY(-1px);
     }
 
     .input-section {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      border-radius: 15px;
+      background: #fff;
+      border: 1px solid #e4e8f0;
+      border-radius: 14px;
       padding: 25px;
       margin-bottom: 30px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
 
     .input-group {
@@ -103,28 +94,30 @@
     .input-group label {
       display: block;
       margin-bottom: 8px;
-      color: #00d4ff;
-      font-weight: bold;
-      letter-spacing: 1px;
+      color: #475569;
+      font-weight: 600;
+      font-size: 0.9em;
     }
 
     .input-group input,
     .input-group textarea {
       width: 100%;
-      padding: 12px 15px;
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      border-radius: 8px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #e0e0ff;
-      font-size: 16px;
-      transition: all 0.3s ease;
+      padding: 11px 14px;
+      border: 1px solid #d6dae3;
+      border-radius: 9px;
+      background: #fff;
+      color: #1e293b;
+      font-size: 16px; /* 16px未満だとiPhoneで入力時に画面が自動ズームされてしまうため */
+      font-family: inherit;
+      transition: all 0.2s ease;
+      color-scheme: light; /* 日付選択カレンダーを明るいテーマで表示する */
     }
 
     .input-group input:focus,
     .input-group textarea:focus {
       outline: none;
-      border-color: #00d4ff;
-      box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     }
 
     .input-group textarea {
@@ -145,36 +138,34 @@
     }
 
     .task-column {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 15px;
+      background: #fff;
+      border-radius: 14px;
       padding: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid #e4e8f0;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
 
     .task-column h2 {
       text-align: center;
       margin-bottom: 20px;
       padding-bottom: 10px;
-      border-bottom: 2px solid;
-      font-size: 1.1em;
+      border-bottom: 3px solid;
+      font-size: 1.05em;
     }
 
     .active-column h2 {
-      color: #00d4ff;
-      border-color: #00d4ff;
-      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+      color: #4f46e5;
+      border-color: #4f46e5;
     }
 
     .pending-column h2 {
-      color: #ffaa00;
-      border-color: #ffaa00;
-      text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+      color: #d97706;
+      border-color: #f59e0b;
     }
 
     .completed-column h2 {
-      color: #00ff88;
-      border-color: #00ff88;
-      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+      color: #059669;
+      border-color: #10b981;
     }
 
     .task-list {
@@ -182,15 +173,16 @@
     }
 
     .task-item {
-      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 30, 60, 0.6));
-      border: 1px solid rgba(0, 212, 255, 0.2);
+      background: #fff;
+      border: 1px solid #e4e8f0;
       border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-      transition: all 0.3s ease;
+      padding: 15px 15px 15px 18px;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
       cursor: grab;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
     }
 
     .task-item:active {
@@ -200,11 +192,11 @@
     .task-item.dragging {
       opacity: 0.5;
       transform: scale(1.02);
-      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
     }
 
     .task-item.drag-over {
-      border-top: 3px solid #00d4ff;
+      border-top: 3px solid #4f46e5;
       margin-top: 12px;
     }
 
@@ -215,29 +207,25 @@
       left: 0;
       width: 4px;
       height: 100%;
-      background: linear-gradient(180deg, #00d4ff, #7b2fff);
+      background: #4f46e5;
     }
 
     .task-item:hover {
-      transform: translateX(5px);
-      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-    }
-
-    .task-item.pending {
-      border-color: rgba(255, 170, 0, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
     }
 
     .task-item.pending::before {
-      background: linear-gradient(180deg, #ffaa00, #ff8800);
+      background: #f59e0b;
     }
 
     .task-item.completed {
-      opacity: 0.7;
-      border-color: rgba(0, 255, 136, 0.3);
+      opacity: 0.75;
+      background: #f8fafc;
     }
 
     .task-item.completed::before {
-      background: linear-gradient(180deg, #00ff88, #00cc6a);
+      background: #10b981;
     }
 
     .task-header {
@@ -248,7 +236,7 @@
     }
 
     .drag-handle {
-      color: #666;
+      color: #cbd5e1;
       font-size: 14px;
       cursor: grab;
     }
@@ -258,23 +246,20 @@
     }
 
     .task-title {
-      font-size: 1.1em;
-      font-weight: bold;
-      color: #00d4ff;
+      font-size: 1.05em;
+      font-weight: 600;
+      color: #1e293b;
       word-break: break-word;
       flex: 1;
     }
 
-    .task-item.pending .task-title {
-      color: #ffaa00;
-    }
-
     .task-item.completed .task-title {
-      color: #00ff88;
+      color: #64748b;
+      text-decoration: line-through;
     }
 
     .task-content {
-      color: #b0b0d0;
+      color: #64748b;
       font-size: 0.95em;
       line-height: 1.5;
       margin-bottom: 12px;
@@ -289,42 +274,59 @@
     }
 
     .task-btn {
-      padding: 5px 10px;
+      padding: 6px 10px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 11px;
-      transition: all 0.3s ease;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
 
     .task-btn-to-active {
-      background: linear-gradient(135deg, #00d4ff, #0099cc);
-      color: #000;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .task-btn-to-active:hover {
+      background: #e0e7ff;
     }
 
     .task-btn-to-pending {
-      background: linear-gradient(135deg, #ffaa00, #ff8800);
-      color: #000;
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .task-btn-to-pending:hover {
+      background: #fde68a;
     }
 
     .task-btn-to-completed {
-      background: linear-gradient(135deg, #00ff88, #00cc6a);
-      color: #000;
+      background: #d1fae5;
+      color: #047857;
+    }
+
+    .task-btn-to-completed:hover {
+      background: #a7f3d0;
     }
 
     .task-btn-edit {
-      background: linear-gradient(135deg, #7b2fff, #5a1fcc);
-      color: #fff;
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .task-btn-edit:hover {
+      background: #e2e8f0;
     }
 
     .task-btn-delete {
-      background: linear-gradient(135deg, #ff4444, #cc0000);
-      color: #fff;
+      background: #fee2e2;
+      color: #dc2626;
     }
 
-    .task-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    .task-btn-delete:hover {
+      background: #fecaca;
     }
 
     .modal {
@@ -334,7 +336,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(15, 23, 42, 0.5);
       justify-content: center;
       align-items: center;
       z-index: 1000;
@@ -345,17 +347,17 @@
     }
 
     .modal-content {
-      background: linear-gradient(135deg, #1a1a3e, #0d0d2b);
-      border: 1px solid rgba(0, 212, 255, 0.5);
-      border-radius: 15px;
+      background: #fff;
+      border: 1px solid #e4e8f0;
+      border-radius: 16px;
       padding: 30px;
       width: 90%;
       max-width: 500px;
-      box-shadow: 0 0 50px rgba(0, 212, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
     }
 
     .modal-content h3 {
-      color: #00d4ff;
+      color: #1e293b;
       margin-bottom: 20px;
       text-align: center;
     }
@@ -373,35 +375,265 @@
 
     .empty-message {
       text-align: center;
-      color: #666;
+      color: #94a3b8;
       padding: 40px;
       font-style: italic;
     }
 
+    /* タイトル下のアクセントライン */
     .glow-line {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #00d4ff, #7b2fff, #ff00d4, transparent);
-      margin: 20px 0;
-      animation: glow-pulse 2s infinite;
-    }
-
-    @keyframes glow-pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
+      height: 4px;
+      width: 90px;
+      margin: 0 auto 25px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #4f46e5, #8b5cf6);
     }
 
     .task-count {
       text-align: center;
       font-size: 0.85em;
-      color: #888;
+      color: #94a3b8;
       margin-top: -15px;
       margin-bottom: 15px;
+    }
+
+    /* ===== 期限バッジ（タスクカード上の期限表示） ===== */
+    .due-date {
+      display: inline-block;
+      font-size: 0.8em;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .due-date.overdue {
+      color: #dc2626;
+      background: #fee2e2;
+    }
+
+    .due-date.due-today {
+      color: #b45309;
+      background: #fef3c7;
+    }
+
+    /* ===== カレンダーセクション ===== */
+    .calendar-section {
+      background: #fff;
+      border: 1px solid #e4e8f0;
+      border-radius: 14px;
+      padding: 25px;
+      margin-top: 30px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-title {
+      color: #1e293b;
+      font-size: 1.3em;
+      font-weight: 700;
+      min-width: 170px;
+      text-align: center;
+    }
+
+    .cal-nav-btn {
+      background: #fff;
+      border: 1px solid #d6dae3;
+      color: #475569;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .cal-nav-btn:hover {
+      background: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .calendar-weekday {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.85em;
+      font-weight: bold;
+      padding: 6px 0;
+    }
+
+    .calendar-weekday.sunday { color: #dc2626; }
+    .calendar-weekday.saturday { color: #2563eb; }
+
+    .calendar-day {
+      min-height: 90px;
+      border: 1px solid #eef1f6;
+      border-radius: 8px;
+      padding: 5px;
+      background: #f8fafc;
+      font-size: 0.8em;
+      overflow: hidden;
+    }
+
+    .calendar-day.other-month {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .calendar-day.today-cell {
+      border-color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .day-number {
+      color: #64748b;
+      font-size: 0.95em;
+      margin-bottom: 4px;
+    }
+
+    .calendar-day.sunday .day-number { color: #dc2626; }
+    .calendar-day.saturday .day-number { color: #2563eb; }
+    .calendar-day.today-cell .day-number {
+      color: #4f46e5;
+      font-weight: bold;
+    }
+
+    .cal-task {
+      display: block;
+      padding: 2px 6px;
+      margin-bottom: 3px;
+      border-radius: 4px;
+      background: #e0e7ff;
+      color: #3730a3;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-left: 3px solid #4f46e5;
+      transition: all 0.2s ease;
+    }
+
+    .cal-task:hover {
+      background: #c7d2fe;
+    }
+
+    .cal-task.pending {
+      background: #fef3c7;
+      color: #92400e;
+      border-left-color: #f59e0b;
+    }
+
+    .cal-task.completed {
+      background: #d1fae5;
+      color: #047857;
+      border-left-color: #10b981;
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    .cal-task.overdue {
+      border-left-color: #dc2626;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* ===== タブレットサイズ（900px以下）の調整 ===== */
+    @media (max-width: 900px) {
+      .calendar-day {
+        min-height: 60px;
+        font-size: 0.7em;
+      }
+    }
+
+    /* ===== スマホサイズ（600px以下）の調整 ===== */
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.4em;
+      }
+
+      .controls {
+        gap: 8px;
+      }
+
+      .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+
+      .input-section,
+      .task-column,
+      .calendar-section {
+        padding: 15px;
+        border-radius: 12px;
+      }
+
+      .task-sections {
+        gap: 14px;
+      }
+
+      /* カレンダーをスマホの画面幅に収める */
+      .calendar-header {
+        gap: 8px;
+      }
+
+      .calendar-title {
+        font-size: 1.1em;
+        min-width: 130px;
+      }
+
+      .cal-nav-btn {
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+
+      .calendar-grid {
+        gap: 3px;
+      }
+
+      .calendar-day {
+        min-height: 52px;
+        padding: 3px;
+        border-radius: 6px;
+      }
+
+      .day-number {
+        margin-bottom: 2px;
+      }
+
+      .cal-task {
+        padding: 1px 3px;
+        border-left-width: 2px;
+        margin-bottom: 2px;
+      }
+
+      .modal-content {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>◆ ToDo管理ツール ◆</h1>
+    <h1>ToDo管理ツール（カレンダー搭載）</h1>
     
     <div class="glow-line"></div>
 
@@ -421,6 +653,10 @@
       <div class="input-group">
         <label>内容</label>
         <textarea id="taskContent" placeholder="タスクの詳細内容を入力..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>期限（任意）</label>
+        <input type="date" id="taskDueDate">
       </div>
       <div style="text-align: center; margin-top: 15px;">
         <button class="btn btn-primary" onclick="addTask()">✨ タスクを追加</button>
@@ -444,6 +680,17 @@
         <div class="task-list" id="completedTaskList" data-status="completed"></div>
       </div>
     </div>
+
+    <!-- 期限カレンダー：期限を設定したタスクが該当日に表示される -->
+    <div class="calendar-section">
+      <div class="calendar-header">
+        <button class="cal-nav-btn" onclick="moveCalendar(-1)">◀ 前月</button>
+        <div class="calendar-title" id="calendarTitle"></div>
+        <button class="cal-nav-btn" onclick="moveCalendar(1)">次月 ▶</button>
+        <button class="cal-nav-btn" onclick="moveCalendarToToday()">今月へ</button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
   </div>
 
   <div class="modal" id="editModal">
@@ -457,6 +704,10 @@
       <div class="input-group">
         <label>内容</label>
         <textarea id="editTaskContent"></textarea>
+      </div>
+      <div class="input-group">
+        <label>期限（任意）</label>
+        <input type="date" id="editTaskDueDate">
       </div>
       <div class="modal-actions">
         <button class="btn btn-primary" onclick="saveEdit()">保存</button>
@@ -506,6 +757,7 @@
     function addTask() {
       const title = document.getElementById('taskTitle').value.trim();
       const content = document.getElementById('taskContent').value.trim();
+      const dueDate = document.getElementById('taskDueDate').value; // 未入力なら空文字
 
       if (!title) {
         alert('タイトルを入力してください');
@@ -516,6 +768,7 @@
         id: taskIdCounter++,
         title: title,
         content: content,
+        dueDate: dueDate || null, // 期限は任意。未設定なら null
         status: STATUS.ACTIVE,
         order: Date.now(),
         createdAt: new Date().toISOString()
@@ -527,6 +780,7 @@
 
       document.getElementById('taskTitle').value = '';
       document.getElementById('taskContent').value = '';
+      document.getElementById('taskDueDate').value = '';
     }
 
     function changeStatus(id, newStatus) {
@@ -553,6 +807,7 @@
         document.getElementById('editTaskId').value = id;
         document.getElementById('editTaskTitle').value = task.title;
         document.getElementById('editTaskContent').value = task.content;
+        document.getElementById('editTaskDueDate').value = task.dueDate || '';
         document.getElementById('editModal').classList.add('active');
       }
     }
@@ -571,6 +826,7 @@
       if (task) {
         task.title = title;
         task.content = content;
+        task.dueDate = document.getElementById('editTaskDueDate').value || null;
         saveTasks();
         renderTasks();
         closeModal();
@@ -716,9 +972,9 @@
       const pendingList = document.getElementById('pendingTaskList');
       const completedList = document.getElementById('completedTaskList');
 
-      const activeTasks = tasks.filter(t => t.status === STATUS.ACTIVE).sort((a, b) => a.order - b.order);
-      const pendingTasks = tasks.filter(t => t.status === STATUS.PENDING).sort((a, b) => a.order - b.order);
-      const completedTasks = tasks.filter(t => t.status === STATUS.COMPLETED).sort((a, b) => a.order - b.order);
+      const activeTasks = tasks.filter(t => t.status === STATUS.ACTIVE).sort(compareTasks);
+      const pendingTasks = tasks.filter(t => t.status === STATUS.PENDING).sort(compareTasks);
+      const completedTasks = tasks.filter(t => t.status === STATUS.COMPLETED).sort(compareTasks);
 
       document.getElementById('activeCount').textContent = `${activeTasks.length} 件`;
       document.getElementById('pendingCount').textContent = `${pendingTasks.length} 件`;
@@ -732,11 +988,124 @@
         ? '<div class="empty-message">確認中のタスクはありません</div>'
         : pendingTasks.map(task => createTaskHTML(task)).join('');
 
-      completedList.innerHTML = completedTasks.length === 0 
+      completedList.innerHTML = completedTasks.length === 0
         ? '<div class="empty-message">完了したタスクはありません</div>'
         : completedTasks.map(task => createTaskHTML(task)).join('');
 
       setupDragEvents();
+      renderCalendar(); // タスクが変わるたびにカレンダーも描き直す
+    }
+
+    // ===== タスクの並び順ルール =====
+    // 1. 期限ありのタスクが上位（期限が早い順 ＝ 期限切れが最上位）
+    // 2. 同じ期限同士、および期限なし同士は、これまで通りの並び順（order）
+    // 3. 期限なしのタスクは期限ありの下に表示
+    function compareTasks(a, b) {
+      if (a.dueDate && b.dueDate) {
+        if (a.dueDate !== b.dueDate) {
+          return a.dueDate < b.dueDate ? -1 : 1;
+        }
+        return a.order - b.order;
+      }
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return a.order - b.order;
+    }
+
+    // ===== 期限まわりの便利関数 =====
+
+    // 今日の日付を "YYYY-MM-DD" 形式で返す
+    function todayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+    }
+
+    // 期限の状態を判定（期限切れ / 今日が期限 / それ以外）。完了済みタスクは警告しない
+    function getDueClass(task) {
+      if (task.status === STATUS.COMPLETED) return '';
+      const today = todayStr();
+      if (task.dueDate < today) return 'overdue';
+      if (task.dueDate === today) return 'due-today';
+      return '';
+    }
+
+    // "2026-06-15" → "2026/6/15(月)" のような日本語表記に変換
+    function formatDateJP(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+      const w = weekdays[new Date(y, m - 1, d).getDay()];
+      return `${y}/${m}/${d}(${w})`;
+    }
+
+    // ===== カレンダー機能 =====
+
+    // 現在表示している年・月（初期値は今月）
+    let calendarYear = new Date().getFullYear();
+    let calendarMonth = new Date().getMonth(); // 0〜11
+
+    // 前月・次月へ移動（delta = -1 または 1）
+    function moveCalendar(delta) {
+      calendarMonth += delta;
+      if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+      if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+      renderCalendar();
+    }
+
+    function moveCalendarToToday() {
+      calendarYear = new Date().getFullYear();
+      calendarMonth = new Date().getMonth();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      document.getElementById('calendarTitle').textContent =
+        `${calendarYear}年 ${calendarMonth + 1}月`;
+
+      const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+      let html = weekdays.map((w, i) => {
+        const cls = i === 0 ? ' sunday' : (i === 6 ? ' saturday' : '');
+        return `<div class="calendar-weekday${cls}">${w}</div>`;
+      }).join('');
+
+      const firstDay = new Date(calendarYear, calendarMonth, 1).getDay(); // 月初の曜日
+      const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate(); // 月の日数
+      const today = todayStr();
+
+      // 月初より前の空白マス
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day other-month"></div>';
+      }
+
+      // 1日〜月末のマスを作成
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = calendarYear + '-' +
+          String(calendarMonth + 1).padStart(2, '0') + '-' +
+          String(day).padStart(2, '0');
+        const dow = (firstDay + day - 1) % 7; // この日の曜日
+
+        let cls = 'calendar-day';
+        if (dow === 0) cls += ' sunday';
+        if (dow === 6) cls += ' saturday';
+        if (dateStr === today) cls += ' today-cell';
+
+        // この日が期限のタスクを集める（クリックで編集画面が開く）
+        const dayTasks = tasks
+          .filter(t => t.dueDate === dateStr)
+          .sort((a, b) => a.order - b.order);
+        const taskHTML = dayTasks.map(t => {
+          let taskCls = 'cal-task';
+          if (t.status === STATUS.PENDING) taskCls += ' pending';
+          if (t.status === STATUS.COMPLETED) taskCls += ' completed';
+          if (getDueClass(t) === 'overdue') taskCls += ' overdue';
+          return `<span class="${taskCls}" title="${escapeHtml(t.title)}" onclick="openEditModal(${t.id})">${escapeHtml(t.title)}</span>`;
+        }).join('');
+
+        html += `<div class="${cls}"><div class="day-number">${day}</div>${taskHTML}</div>`;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
     }
 
     function createTaskHTML(task) {
@@ -766,6 +1135,16 @@
         `;
       }
       
+      // 期限が設定されていればバッジを表示（期限切れ・今日が期限のときは警告色）
+      let dueDateHTML = '';
+      if (task.dueDate) {
+        const dueClass = getDueClass(task);
+        let prefix = '📅 期限: ';
+        if (dueClass === 'overdue') prefix = '⚠️ 期限切れ: ';
+        else if (dueClass === 'due-today') prefix = '🔔 今日まで: ';
+        dueDateHTML = `<div><span class="due-date ${dueClass}">${prefix}${formatDateJP(task.dueDate)}</span></div>`;
+      }
+
       return `
         <div class="task-item ${statusClass}" draggable="true" data-task-id="${task.id}" data-status="${task.status}">
           <div class="task-header">
@@ -773,6 +1152,7 @@
             <div class="task-title">${escapedTitle}</div>
           </div>
           ${escapedContent ? `<div class="task-content">${escapedContent}</div>` : ''}
+          ${dueDateHTML}
           <div class="task-actions">
             ${moveButtons}
             <button class="task-btn task-btn-edit" onclick="openEditModal(${task.id})">✏️ 編集</button>
